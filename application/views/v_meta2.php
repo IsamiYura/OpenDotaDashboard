@@ -28,6 +28,10 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Meta Suggestion (Win/Pick Rate)
                             </a>
+                             <a class="nav-link" href="<?php echo site_url("fetch/meta2")?>">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Meta Suggestion (Win Rate + Pick/Ban) SAW Method
+                            </a>
                             </div>
 
                     </div>
@@ -39,41 +43,16 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid">
-                        <h1 class="mt-4">API Data Fetch</h1>
+                        <h1 class="mt-4">Meta Suggestion (Win Rate + Pick/Ban) SAW Method</h1>
                         <br>
                         
                         <br>
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table mr-1"></i>
-                                <div class='row'>
-                                    <div class="col-md-9">
-                                    Meta Suggestion - Tier Based
-                                    </div>
-                                    <div class="col-md-3">
-                                    <div class="dropdown show">
-  <a class="btn btn-block btn-info dropdown-toggle" href="#" role="button" id="tierChoose" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Current Tier : Herald
-  </a>
-
-  <div class="btn-block dropdown-menu" aria-labelledby="dropdownMenuLink">
-    <a class="dropdown-item" href="#" onclick="setTier(1)">Tier 1 Rank – Herald</a>
-    <a class="dropdown-item" href="#" onclick="setTier(2)">Tier 2 Rank – Guardian</a>
-    <a class="dropdown-item" href="#" onclick="setTier(3)">Tier 3 Rank – Crusader</a>
-    <a class="dropdown-item" href="#" onclick="setTier(4)">Tier 4 Rank – Archon</a>
-    <a class="dropdown-item" href="#" onclick="setTier(5)">Tier 5 Rank – Legend</a>
-    <a class="dropdown-item" href="#" onclick="setTier(6)">Tier 6 Rank – Ancient</a>
-    <a class="dropdown-item" href="#" onclick="setTier(7)">Tier 7 Rank – Divine</a>
-    <a class="dropdown-item" href="#" onclick="setTier(8)">Tier 8 Rank – Immortal</a>
-  </div>
-</div>
-                                    </div>
-                                </div>
                                 <div class="col-md-9">
-                                   
+                                Meta Suggestion (Win Rate + Pick/Ban) SAW Method
                                 </div>
-                                
-                                
                             </div>
                             <div class="card-body">
                             <div class="table-responsive">
@@ -107,16 +86,17 @@ $template = array(
 );
 
 $this->table->set_template($template);
-$this->table->set_heading('ID', 'Name', 'Win', 'Pick', 'Percentage', 'Hero Detail');
+$this->table->set_heading('Hero ID', 'Name', 'Win', 'Pick', 'Ban','SAW Value', 'Hero Detail');
 
-for($l=0;$l<count($json);$l++){
+for($l=0;$l<count($saw_index);$l++){
     $this->table->add_row(
-        $winner1[$l]['index'], //print id
-        $winner1[$l]['localized_name'], //print name
-        $winner1[$l]['1win'],
-        $winner1[$l]['1pick'],
-        ($winner1[$l]['percentage']*100)."%",
-        '<button type="button" class="btn btn-info" onclick="getID('.$winner1[$l]['index'].')" data-target="#modalDetail" id='.$winner1[$l]['index'].'>Info</button>');
+        $meta2[$l]['hero_id'], //print id
+        $meta2[$l]['localized_name'], //print name
+        $meta2[$l]['pro_win'],
+        $meta2[$l]['pro_pick'],
+        $meta2[$l]['pro_ban'],
+        $saw_index[$l],
+        '<button type="button" class="btn btn-info" onclick="getID('.$meta2[$l]['hero_id'].')" data-target="#modalDetail" id='.$meta2[$l]['hero_id'].'>Info</button>');
 
  
 }
@@ -216,7 +196,7 @@ echo $this->table->generate();
 <script>
 $(document).ready( function () {
     $('#dataDota').DataTable({
-        "order": [[ 4, "desc" ]]
+        "order": [[ 5, "desc" ]]
     });
 });
 
@@ -238,63 +218,6 @@ function getID(clickedID){
                     }
                 });
     }
-
-    function setTier(tierNumber){
-        $('#dataDota').DataTable().destroy();
-        if(tierNumber==1){
-            setDropdown("Current Tier : Herald");
-        } else if(tierNumber==2){
-            setDropdown("Current Tier : Guardian");
-        } else if(tierNumber==3){
-            setDropdown("Current Tier : Crusader");
-        } else if(tierNumber==4){
-            setDropdown("Current Tier : Archon");
-        } else if(tierNumber==5){
-            setDropdown("Current Tier : Legend");
-        } else if(tierNumber==6){
-            setDropdown("Current Tier : Ancient");
-        } else if(tierNumber==7){
-            setDropdown("Current Tier : Divine");
-        } else if(tierNumber==8){
-            setDropdown("Current Tier : Immortal");
-        }
-        tampil_data(tierNumber);
-    }
-
-    function setDropdown(text){
-        $("#tierChoose").text(text);
-    }
-
-     //fungsi tampil barang
-     function tampil_data(test){
-        $.ajax({
-                    url: '<?php echo base_url(); ?>/fetch/setTier',
-                    method: 'post',
-                    data: {id:test},
-                    success:function(data){
-                        var html = '';
-                    var i;
-                    var json = JSON.parse(data);
-                    
-                    // console.log(json[0]['index']);
-                    for(i=0; i<json.length; i++){
-                        html += '<tr>';
-                        for (var key in json[i]) {
-                            if(key=='percentage'){
-                                html +='<td>'+(json[i][key]*100)+'%</td>'+
-                                '<td><button type="button" class="btn btn-info" onclick="getID('+json[i]['index']+')" data-target="#modalDetail" id='+json[i]['index']+'>Info</button></td>';
-                            } else {
-                                html +='<td>'+json[i][key]+'</td>';
-                            }
-                        }
-                    }
-                    $('#data-tampil').html(html);
-                    $('#dataDota').DataTable({
-                        "order": [[ 4, "desc" ]]
-                    });
-                    }
-                });
-        }
 
 </script>
 

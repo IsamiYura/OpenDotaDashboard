@@ -84,7 +84,7 @@ class Fetch extends CI_Controller {
             }
             $percentage = array_column($final_1, 'percentage');
     
-            array_multisort($this->sortRatePercentage($final_1), SORT_DESC, $final_1);
+            array_multisort($this->sortRatePercentage($final_1,'percentage'), SORT_DESC, $final_1);
     
             $data['dataCount']=count($json);
             $data['winner1']=$final_1;
@@ -94,8 +94,8 @@ class Fetch extends CI_Controller {
         
     }
 
-    public function sortRatePercentage($array){
-        $percentage = array_column($array, 'percentage');
+    public function sortRatePercentage($array,$key){
+        $percentage = array_column($array, $key);
         return $percentage;
     }
 
@@ -236,14 +236,14 @@ class Fetch extends CI_Controller {
             $percentage7 = array_column($final_7, 'percentage');
             $percentage8 = array_column($final_8, 'percentage');
     
-            array_multisort($this->sortRatePercentage($final_1), SORT_DESC, $final_1);
-            array_multisort($this->sortRatePercentage($final_2), SORT_DESC, $final_2);
-            array_multisort($this->sortRatePercentage($final_3), SORT_DESC, $final_3);
-            array_multisort($this->sortRatePercentage($final_4), SORT_DESC, $final_4);
-            array_multisort($this->sortRatePercentage($final_5), SORT_DESC, $final_5);
-            array_multisort($this->sortRatePercentage($final_6), SORT_DESC, $final_6);
-            array_multisort($this->sortRatePercentage($final_7), SORT_DESC, $final_7);
-            array_multisort($this->sortRatePercentage($final_8), SORT_DESC, $final_8);
+            array_multisort($this->sortRatePercentage($final_1,'percentage'), SORT_DESC, $final_1);
+            array_multisort($this->sortRatePercentage($final_2,'percentage'), SORT_DESC, $final_2);
+            array_multisort($this->sortRatePercentage($final_3,'percentage'), SORT_DESC, $final_3);
+            array_multisort($this->sortRatePercentage($final_4,'percentage'), SORT_DESC, $final_4);
+            array_multisort($this->sortRatePercentage($final_5,'percentage'), SORT_DESC, $final_5);
+            array_multisort($this->sortRatePercentage($final_6,'percentage'), SORT_DESC, $final_6);
+            array_multisort($this->sortRatePercentage($final_7,'percentage'), SORT_DESC, $final_7);
+            array_multisort($this->sortRatePercentage($final_8,'percentage'), SORT_DESC, $final_8);
     
 
             if($tier==1){
@@ -268,6 +268,7 @@ class Fetch extends CI_Controller {
     }}
 
     public function meta2(){
+        $this->load->library('table');
         $json = json_decode(file_get_contents("https://api.opendota.com/api/herostats"), true);
         // format echo object[urutan data hero][jenis data]  
 
@@ -277,7 +278,7 @@ class Fetch extends CI_Controller {
             foreach($json[$x] as $key => $value) {
                 if($json[$x]['id']==35){ //cacat data api pada hero sniper
                     $meta2[$x] = array (
-                        'id'=>$json[$x]['id'],
+                        'hero_id'=>$json[$x]['id'],
                         'name'=>$json[$x]['name'],
                         'localized_name'=>$json[$x]['localized_name'],
                         'pro_ban'=>1,
@@ -286,7 +287,7 @@ class Fetch extends CI_Controller {
                     );      
                 } else {
                     $meta2[$x] = array (
-                        'id'=>$json[$x]['id'],
+                        'hero_id'=>$json[$x]['id'],
                         'name'=>$json[$x]['name'],
                         'localized_name'=>$json[$x]['localized_name'],
                         'pro_ban'=>$json[$x]['pro_ban'],
@@ -298,7 +299,7 @@ class Fetch extends CI_Controller {
                 }
         }
 
-        print_r($meta2);
+        // print_r($meta2);
 
         // bobot winrate    = 0,5
         // bobot pick       = 0,25
@@ -350,7 +351,7 @@ class Fetch extends CI_Controller {
         $norm_pick=array();
         $norm_ban=array();
 
-        $bobot=array(0.4,0.3,0.3);
+        $bobot=array(0.5,0.25,0.25);
 
         print_r($bobot);
 
@@ -371,15 +372,27 @@ class Fetch extends CI_Controller {
             array_push($saw, $saw_val);
         }
 
-        print_r($saw);
+        // print_r($saw);
 
         $max_rank=max($saw);
         $max_index=array_search($max_rank, $saw);
+
+        $percentage = array_column($saw, 'percentage');
+
+        // foreach($page as $key => $value) {
+        //     echo "$key is at $value";
+        //   }
+
+
 
 
 
  
         // print_r($json[$max_index]);
+        $data['meta2']=$meta2;
+        $data['saw_index']=$saw;
+
+        $this->load->view('v_meta2',$data);
 
 
 

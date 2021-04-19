@@ -28,6 +28,10 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Meta Suggestion (Win/Pick Rate)
                             </a>
+                            <a class="nav-link" href="<?php echo site_url("fetch/meta2")?>">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Meta Suggestion (Win Rate + Pick/Ban) SAW Method
+                            </a>
                             </div>
 
                     </div>

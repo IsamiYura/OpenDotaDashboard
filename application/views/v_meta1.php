@@ -28,6 +28,10 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Meta Suggestion (Win/Pick Rate)
                             </a>
+                            <a class="nav-link" href="<?php echo site_url("fetch/meta2")?>">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Meta Suggestion (Win Rate + Pick/Ban) SAW Method
+                            </a>
                             </div>
 
                     </div>
@@ -39,7 +43,7 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid">
-                        <h1 class="mt-4">API Data Fetch</h1>
+                        <h1 class="mt-4">Meta Suggestion - Tier Based</h1>
                         <br>
                         
                         <br>
