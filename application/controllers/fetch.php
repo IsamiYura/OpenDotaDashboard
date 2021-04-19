@@ -264,42 +264,126 @@ class Fetch extends CI_Controller {
                 $data=$final_8;
             }
             
-    
             echo json_encode($data);
     }}
 
     public function meta2(){
         $json = json_decode(file_get_contents("https://api.opendota.com/api/herostats"), true);
-        // format echo object[urutan data hero][jenis data]
-  
+        // format echo object[urutan data hero][jenis data]  
+
+        // print_r($json);
         
-        for ($x = 0; $x < count($json); $x++) {
+        for ($x = 0; $x < count($json)-1; $x++) {
             foreach($json[$x] as $key => $value) {
-                if($key=='pro_win'){
+                if($json[$x]['id']==35){ //cacat data api pada hero sniper
                     $meta2[$x] = array (
                         'id'=>$json[$x]['id'],
                         'name'=>$json[$x]['name'],
                         'localized_name'=>$json[$x]['localized_name'],
-                        'pro_win'=>$value
+                        'pro_ban'=>1,
+                        'pro_win'=>$json[$x]['pro_win'],
+                        'pro_pick'=>$json[$x]['pro_pick']
+                    );      
+                } else {
+                    $meta2[$x] = array (
+                        'id'=>$json[$x]['id'],
+                        'name'=>$json[$x]['name'],
+                        'localized_name'=>$json[$x]['localized_name'],
+                        'pro_ban'=>$json[$x]['pro_ban'],
+                        'pro_win'=>$json[$x]['pro_win'],
+                        'pro_pick'=>$json[$x]['pro_pick']
                     );
-                } else if($key=='pro_pick'){
-                    $meta2[$x] = array_merge($meta2[$x],array(
-                        'pro_pick'=>$value
-                    ));
-                } else if($key=='pro_ban'){
-                    $meta2[$x] = array_merge($meta2[$x],array(
-                        'pro_ban'=>$value
-                    ));
+                }
+                    
                 }
         }
-    }
-    print_r($meta2[0]);
+
+        print_r($meta2);
+
+        // bobot winrate    = 0,5
+        // bobot pick       = 0,25
+        // bobot ban        = 0,25
+        $n_win=array();
+        $n_pick=array();
+        $n_ban=array();
+
+        //isi array
+        for ($x = 0; $x < count($meta2); $x++) {
+                if($meta2[$x]['pro_ban']==0){
+                    array_push($n_pick,$meta2[$x]['pro_pick']);
+                    array_push($n_ban,1);
+                    array_push($n_win,$meta2[$x]['pro_ban']);
+                } else {
+                    array_push($n_pick,$meta2[$x]['pro_pick']);
+                    array_push($n_ban,$meta2[$x]['pro_ban']);
+                    $win=$meta2[$x]['pro_win']/$meta2[$x]['pro_pick'];
+                    array_push($n_win,$win);
+                }
+        }
+
+        // echo "Pick";
+        // print_r($n_pick);
+
+        // echo "Win";
+        // print_r($n_win);
+
+        // echo "Ban";
+        // print_r($n_ban);
+
+        
+        $min_win = min($n_win);
+
+        
+        $min_pick = min($n_pick);
+        
+        
+        $min_ban = min($n_ban);
+
+        // echo "Win";
+        // print_r($min_win);
+        // echo "Pick";
+        // print_r($min_pick);
+        // echo "Ban";
+        // print_r($min_ban);
+
+        $norm_win=array();
+        $norm_pick=array();
+        $norm_ban=array();
+
+        $bobot=array(0.4,0.3,0.3);
+
+        print_r($bobot);
+
+        //normalisasi
+        for ($x = 0; $x < count($meta2); $x++) {
+            $win_n = $min_win/$n_win[$x];
+            $pick_n = $min_pick/$n_pick[$x];
+            $ban_n = $min_ban/$n_ban[$x];
+            array_push($norm_win, $win_n);
+            array_push($norm_pick, $pick_n);
+            array_push($norm_ban, $ban_n);
+        }
+
+        $saw=array();
+
+        for ($x = 0; $x < count($meta2); $x++) {
+            $saw_val=($bobot[0]*$norm_win[$x])+($bobot[1]*$norm_ban[$x])+($bobot[2]*$norm_pick[$x]);
+            array_push($saw, $saw_val);
+        }
+
+        print_r($saw);
+
+        $max_rank=max($saw);
+        $max_index=array_search($max_rank, $saw);
+
+
+
+ 
+        // print_r($json[$max_index]);
+
+
+
+}
 }
 
 
-
-
-
-
-    
-}
